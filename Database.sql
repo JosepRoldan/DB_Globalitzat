@@ -33,7 +33,6 @@ CREATE TABLE IF NOT EXISTS `languages` (
 
 CREATE TABLE IF NOT EXISTS `clients` (
   `idClient` int AUTO_INCREMENT PRIMARY KEY,
-  `idCS` int,
   `name` varchar(50),
   `surnames` varchar(50),
   `username` varchar(50) UNIQUE NOT NULL,
@@ -59,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 CREATE TABLE IF NOT EXISTS `orders` (
   `idOrder` int AUTO_INCREMENT PRIMARY KEY,
   `idClient` int NOT NULL,
-  `datetime` datetime NOT NULL,
+  `datetime` datetime,
   `orderStatus` ENUM ('Pending', 'Accepted', 'Processing', 'Sent', 'Delivered')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
@@ -68,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   `productName` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
-CREATE TABLE IF NOT EXISTS `productIamge` (
+CREATE TABLE IF NOT EXISTS `productImage` (
   `idPI` int ,
   `idProduct` int,
   `thumb` varchar(300),
@@ -136,7 +135,7 @@ CREATE TABLE IF NOT EXISTS `refunds` (
   `idOrder` int NOT NULL,
   `idClient` int NOT NULL,
   `name` varchar(100) NOT NULL,
-  `dateRefund` datetime NOT NULL,
+  `dateRefund` datetime,
   `desc` varchar(999) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
@@ -167,8 +166,6 @@ ALTER TABLE `translations` ADD FOREIGN KEY (`idLanguage`) REFERENCES `languages`
 
 ALTER TABLE `users` ADD FOREIGN KEY (`idRole`) REFERENCES `roles` (`idRole`);
 
-ALTER TABLE `clients` ADD FOREIGN KEY (`idCS`) REFERENCES `clientStatus` (`idCS`);
-
 ALTER TABLE `clients` ADD FOREIGN KEY (`idCountry`) REFERENCES `country` (`idCountry`);
 
 ALTER TABLE `clients` CHANGE `membershipDate` `membershipDate` DATETIME NULL DEFAULT CURRENT_TIMESTAMP;
@@ -190,8 +187,6 @@ ALTER TABLE `orderDetails` ADD FOREIGN KEY (`idProduct`) REFERENCES `products` (
 ALTER TABLE `orderDetails` ADD FOREIGN KEY (`idOrder`) REFERENCES `orders` (`idOrder`);
 
 ALTER TABLE `orderDetails` ADD FOREIGN KEY (`idVariant`) REFERENCES `productVariant` (`idVariant`);
-
-ALTER TABLE `orderDetails` ADD FOREIGN KEY (`idStatus`) REFERENCES `status` (`idStatus`);
 
 ALTER TABLE `orderDetails` ADD FOREIGN KEY (`idGI`) REFERENCES `generatedImages` (`idGI`);
 
@@ -217,9 +212,9 @@ FROM users AS U, roles AS R
 WHERE U.idRole = R.idRole
 ORDER BY idRole;
 
-CREATE VIEW infoOrders AS SELECT OD.idOrder, OD.datetime, OD.idProduct, OD.idVariant, P.productName, PV.variantName, OD.quantity, C.name, S.statusName
-FROM orderDetails AS OD, orders AS O, products AS P, productVariant AS PV, clients AS C, status AS S
-WHERE OD.idOrder = O.idOrder AND OD.idProduct = P.idProduct AND OD.idVariant = PV.idVariant AND O.idClient = C.idClient AND S.idStatus = OD.idStatus
+CREATE VIEW infoOrders AS SELECT OD.idOrder, O.datetime, OD.idProduct, OD.idVariant, P.productName, PV.variantName, OD.quantity, C.name
+FROM orderDetails AS OD, orders AS O, products AS P, productVariant AS PV, clients AS C
+WHERE OD.idOrder = O.idOrder AND OD.idProduct = P.idProduct AND OD.idVariant = PV.idVariant AND O.idClient = C.idClient
 ORDER BY idOrder;
 
 CREATE VIEW infoRefunds AS SELECT DISTINCT R.idRefund, CONCAT(C.name,' ', C.surnames) AS name, R.dateRefund, R.desc
