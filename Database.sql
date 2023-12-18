@@ -259,3 +259,13 @@ BEGIN
 END;
 //
 DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER autoOrderStatus
+BEFORE INSERT ON orders
+FOR EACH ROW
+BEGIN
+    SET NEW.orderStatus = ('Pending');
+END;
+//
+DELIMITER ;
