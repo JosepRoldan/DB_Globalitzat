@@ -31,11 +31,6 @@ CREATE TABLE IF NOT EXISTS `languages` (
   `language` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
-CREATE TABLE IF NOT EXISTS `clientStatus` (
-  `idCS` int(11) PRIMARY KEY,
-  `statusName` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
-
 CREATE TABLE IF NOT EXISTS `clients` (
   `idClient` int AUTO_INCREMENT PRIMARY KEY,
   `idCS` int,
@@ -48,7 +43,8 @@ CREATE TABLE IF NOT EXISTS `clients` (
   `address` varchar(100),
   `postcode` int,
   `idCountry` int,
-  `membershipDate` datetime
+  `membershipDate` datetime,
+  `clientStatus` ENUM ('Active', 'Inactive', 'Banned', 'Deleted')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 CREATE TABLE IF NOT EXISTS `users` (
@@ -62,7 +58,9 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 CREATE TABLE IF NOT EXISTS `orders` (
   `idOrder` int AUTO_INCREMENT PRIMARY KEY,
-  `idClient` int NOT NULL
+  `idClient` int NOT NULL,
+  `datetime` datetime NOT NULL,
+  `orderStatus` ENUM ('Pending', 'Accepted', 'Processing', 'Sent', 'Delivered')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 CREATE TABLE IF NOT EXISTS `products` (
@@ -73,7 +71,8 @@ CREATE TABLE IF NOT EXISTS `products` (
 CREATE TABLE IF NOT EXISTS `productIamge` (
   `idPI` int ,
   `idProduct` int,
-  `img` varchar(100),
+  `thumb` varchar(300),
+  `original` varchar(300),
   PRIMARY KEY (`idPI`, `idProduct`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
@@ -83,6 +82,9 @@ CREATE TABLE IF NOT EXISTS `productVariant` (
   `size` varchar(50),
   `variantName` varchar(200),
   `marginPercentage` decimal(6,2),
+  `format_width` int,
+  `format_height` int,
+  `currency` varchar(3),
   `showProduct` boolean,
   PRIMARY KEY (`idVariant`, `idProduct`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
@@ -101,11 +103,6 @@ CREATE TABLE IF NOT EXISTS `values` (
   PRIMARY KEY (`idValue`, `idOption`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
-CREATE TABLE IF NOT EXISTS `status` (
-  `idStatus` int AUTO_INCREMENT PRIMARY KEY,
-  `statusName` varchar(30) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
-
 CREATE TABLE IF NOT EXISTS `generatedImages` (
   `idGI` integer PRIMARY KEY,
   `idClient` int NOT NULL,
@@ -118,14 +115,12 @@ CREATE TABLE IF NOT EXISTS `generatedImages` (
 CREATE TABLE IF NOT EXISTS `orderDetails` (
   `idOD` int AUTO_INCREMENT PRIMARY KEY,
   `idOrder` int NOT NULL,
-  `datetime` datetime NOT NULL,
   `idProduct` int NOT NULL,
   `idGI` int NOT NULL,
   `idVariant` int NOT NULL,
   `quantity` int NOT NULL,
   `priceEach` decimal(6,2) NOT NULL,
-  `shippingPrice` decimal(6,2),
-  `idStatus` int NOT NULL
+  `shippingPrice` decimal(6,2)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 CREATE TABLE IF NOT EXISTS `accounting` (
@@ -178,6 +173,8 @@ ALTER TABLE `clients` ADD FOREIGN KEY (`idCountry`) REFERENCES `country` (`idCou
 ALTER TABLE `clients` CHANGE `membershipDate` `membershipDate` DATETIME NULL DEFAULT CURRENT_TIMESTAMP;
 
 ALTER TABLE `orders` ADD FOREIGN KEY (`idClient`) REFERENCES `clients` (`idClient`);
+
+ALTER TABLE `orders` CHANGE `datetime` `datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP;
 
 ALTER TABLE `refunds` ADD FOREIGN KEY (`idClient`) REFERENCES `clients` (`idClient`);
 
