@@ -148,7 +148,8 @@ CREATE TABLE IF NOT EXISTS `configurations` (
 
 CREATE TABLE IF NOT EXISTS `originals` (
   `idOriginal` int(11) AUTO_INCREMENT PRIMARY KEY,
-  `originalText` varchar(255) NOT NULL
+  `originalText` varchar(255) NOT NULL,
+  `site` varchar(40)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 CREATE TABLE IF NOT EXISTS `translations` (
@@ -237,7 +238,7 @@ CREATE VIEW viewCMS AS SELECT cms.idCms, P.policy, cms.policyValue
 FROM policy AS P, cms
 WHERE cms.idPolicy = P.idPolicy;
 
-CREATE VIEW viewTranslations AS SELECT T.idTranslation, T.translation, O.originalText, L.language
+CREATE VIEW viewTranslations AS SELECT T.idTranslation, T.translation, O.originalText, O.site, L.language
 FROM languages AS L, translations AS T, originals AS O
 WHERE L.idLanguage = T.idLanguage AND T.idOriginal = O.idOriginal;
 
