@@ -136,7 +136,9 @@ CREATE TABLE IF NOT EXISTS `refunds` (
   `idClient` int NOT NULL,
   `name` varchar(100) NOT NULL,
   `dateRefund` datetime,
-  `desc` varchar(999) NOT NULL
+  `desc` varchar(999) NOT NULL,
+  `refundStatus` ENUM ('Pending', 'Done', 'Processing')
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 CREATE TABLE IF NOT EXISTS `configurations` (
@@ -217,7 +219,7 @@ FROM orderDetails AS OD, orders AS O, products AS P, productVariant AS PV, clien
 WHERE OD.idOrder = O.idOrder AND OD.idProduct = P.idProduct AND OD.idVariant = PV.idVariant AND O.idClient = C.idClient
 ORDER BY idOrder;
 
-CREATE VIEW infoRefunds AS SELECT DISTINCT R.idRefund, CONCAT(C.name,' ', C.surnames) AS name, R.dateRefund, R.desc
+CREATE VIEW infoRefunds AS SELECT DISTINCT R.idRefund, CONCAT(C.name,' ', C.surnames) AS name, R.dateRefund, R.desc, R.refundStatus
 FROM refunds AS R, clients AS C, orders AS O
 WHERE O.idClient = C.idClient AND O.idOrder = R.idOrder;
 
