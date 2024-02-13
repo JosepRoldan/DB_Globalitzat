@@ -161,8 +161,15 @@ CREATE TABLE IF NOT EXISTS `translations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 CREATE TABLE IF NOT EXISTS `shoppingCart` (
-  `idCart` int,
+  `idCart` int PRIMARY KEY,
   `idClient` int NOT NULL,
+  `date` datetime,
+  `total` decimal(6,2) AS (SELECT SUM(sci.price * sci.quantity) FROM shoppingCartItems sci WHERE sci.idCart = idCart)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+CREATE TABLE IF NOT EXISTS `shoppingCartItems` (
+  `idCI` int PRIMARY KEY,
+  `idCart` int NOT NULL,
   `idGI` int NOT NULL,
   `idProduct` int NOT NULL,
   `idVariant` int NOT NULL,
@@ -170,7 +177,6 @@ CREATE TABLE IF NOT EXISTS `shoppingCart` (
   `idValue` int NOT NULL,
   `quantity` int NOT NULL,
   `price` decimal(6,2),
-  PRIMARY KEY(`idCart`, `idClient`, `idGI`, `idProduct`, `idVariant`, `idOption`, `idValue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 ALTER TABLE `cms` ADD FOREIGN KEY (`idPolicy`) REFERENCES `policy` (`idPolicy`);
@@ -224,6 +230,22 @@ ALTER TABLE `shoppingCart` ADD FOREIGN KEY (`idVariant`) REFERENCES `productVari
 ALTER TABLE `shoppingCart` ADD FOREIGN KEY (`idOption`) REFERENCES `options` (`idOption`);
 
 ALTER TABLE `shoppingCart` ADD FOREIGN KEY (`idValue`) REFERENCES `values` (`idValue`);
+
+ALTER TABLE `shoppingCart` CHANGE `total` `total` DECIMAL(6,2) DEFAULT '0.00';
+
+ALTER TABLE `shoppingCartItems` ADD FOREIGN KEY (`idCart`) REFERENCES `shoppingCart` (`idCart`);
+
+ALTER TABLE `shoppingCartItems` ADD FOREIGN KEY (`idGI`) REFERENCES `generatedImages` (`idGI`);
+
+ALTER TABLE `shoppingCartItems` ADD FOREIGN KEY (`idProduct`) REFERENCES `products` (`idProduct`);
+
+ALTER TABLE `shoppingCartItems` ADD FOREIGN KEY (`idVariant`) REFERENCES `productVariant` (`idVariant`);
+
+ALTER TABLE `shoppingCartItems` ADD FOREIGN KEY (`idOption`) REFERENCES `options` (`idOption`);
+
+ALTER TABLE `shoppingCartItems` ADD FOREIGN KEY (`idValue`) REFERENCES `values` (`idValue`);
+
+ALTER TABLE `shoppingCartItems` CHANGE `price` `price` DECIMAL(6,2) DEFAULT '0.00';
 
 CREATE VIEW infoProducts AS SELECT P.idProduct, PV.idVariant, P.productName, PV.variantName, PV.size 
 FROM products AS P, productVariant AS PV 
