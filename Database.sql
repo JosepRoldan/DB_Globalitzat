@@ -160,6 +160,19 @@ CREATE TABLE IF NOT EXISTS `translations` (
   `translation` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
+CREATE TABLE IF NOT EXISTS `shoppingCart` (
+  `idCart` int,
+  `idClient` int NOT NULL,
+  `idGI` int NOT NULL,
+  `idProduct` int NOT NULL,
+  `idVariant` int NOT NULL,
+  `idOption` int NOT NULL,
+  `idValue` int NOT NULL,
+  `quantity` int NOT NULL,
+  `price` decimal(6,2),
+  PRIMARY KEY(`idCart`, `idClient`, `idGI`, `idProduct`, `idVariant`, `idOption`, `idValue`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
 ALTER TABLE `cms` ADD FOREIGN KEY (`idPolicy`) REFERENCES `policy` (`idPolicy`);
 
 ALTER TABLE `translations` ADD FOREIGN KEY (`idOriginal`) REFERENCES `originals` (`idOriginal`);
@@ -199,6 +212,18 @@ ALTER TABLE `values` ADD FOREIGN KEY (`idOption`) REFERENCES `options` (`idOptio
 ALTER TABLE `options` ADD FOREIGN KEY (`idVariant`) REFERENCES `productVariant` (`idVariant`);
 
 ALTER TABLE `generatedImages` ADD FOREIGN KEY (`idClient`) REFERENCES `clients` (`idClient`);
+
+ALTER TABLE `shoppingCart` ADD FOREIGN KEY (`idClient`) REFERENCES `clients` (`idClient`);
+
+ALTER TABLE `shoppingCart` ADD FOREIGN KEY (`idGI`) REFERENCES `generatedImages` (`idGI`);
+
+ALTER TABLE `shoppingCart` ADD FOREIGN KEY (`idProduct`) REFERENCES `products` (`idProduct`);
+
+ALTER TABLE `shoppingCart` ADD FOREIGN KEY (`idVariant`) REFERENCES `productVariant` (`idVariant`);
+
+ALTER TABLE `shoppingCart` ADD FOREIGN KEY (`idOption`) REFERENCES `options` (`idOption`);
+
+ALTER TABLE `shoppingCart` ADD FOREIGN KEY (`idValue`) REFERENCES `values` (`idValue`);
 
 CREATE VIEW infoProducts AS SELECT P.idProduct, PV.idVariant, P.productName, PV.variantName, PV.size 
 FROM products AS P, productVariant AS PV 
